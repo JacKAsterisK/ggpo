@@ -122,24 +122,28 @@ extern "C" {
 
 #define GGPO_INVALID_HANDLE      (-1)
 
-    typedef struct {
+    struct GGPOConnection {
         /*
         * Instance of the connection class
         */
-        void* instance;
+        Connection instance;
 
         void Init();
+        void Constructor();
+        void Destructor();
         /*
           *send buffer to the opponent.
         */
-        void(__cdecl* send_to)(void* self, const char* buffer, int len, int flags, int player_num);
+        void SendTo(const char* buffer, int len, int flags, int player_num);
         /*
         * poll connection socket, put the sending players id to the player_num container and return the length of packet
         */
-        int(__cdecl* receive_from)(void* self, char* buffer, int len, int flags, int* player_num);
-    } GGPOConnection;
+        int ReceiveFrom(char* buffer, int len, int flags, int* player_num);
 
-    typedef struct : public GGPOConnection {
+        bool OnLoopPoll(void* cookie);
+    };
+
+    struct SteamConnection : public GGPOConnection {
         protected:
             CSteamID _local_steam_id;
 
@@ -148,9 +152,72 @@ extern "C" {
             SteamNetworking()->AllowP2PPacketRelay(true);
             _local_steam_id = SteamUser()->GetSteamID();
         }
-    } SteamConnection;
 
-    typedef struct : public GGPOConnection {
+        void Constructor() {
+            _local_steam_id.Clear();
+        }
+
+        void Destructor() {
+            _local_steam_id.Clear();
+        }
+
+        void SendTo(const char* buffer, int len, int flags, int player_num) {
+            SteamNetworking()->SendP2PPacket(dst, buffer, len, flags);
+        }
+
+        bool OnLoopPool(void* cookie) {
+            ggpo::uint8 recv_buf[MAX_STEAM_PACKET_SIZE];
+            uint32 msgSize;
+            CSteamID steamIDRemote;
+
+            while (SteamNetworking()->IsP2PPacketAvailable(&msgSize))
+            {
+                if (msgSize > MAX_STEAM_PACKET_SIZE)
+                {
+                    Log("Dropping oversized packet\n");
+                    SteamNetworking()->ReadP2PPacket(recv_buf, MAX_STEAM_PACKET_SIZE, &msgSize, &steamIDRemote);
+                    continue;
+                }
+
+                if (!SteamNetworking()->ReadP2PPacket(recv_buf, msgSize, &msgSize, &steamIDRemote))
+                {
+                    Log("Failed to read packet\n");
+                    continue;
+                }
+
+                if (steamIDRemote == _local_steam_id)
+                {
+                    continue;
+                }
+
+                _callbacks->OnMsg(steamIDRemote, (SteamMsg*)recv_buf, msgSize);
+            }
+
+            return true;
+        }
+
+        int ReceiveFrom(char* buffer, int len, int flags, int* player_num) {
+            uint32 msgSize;
+            if (!SteamNetworking()->IsP2PPacketAvailable(&msgSize)) {
+                return -1;
+            }
+
+            if (msgSize > MAX_STEAM_PACKET_SIZE)
+            {
+                Log("Dropping oversized packet\n");
+                SteamNetworking()->ReadP2PPacket(recv_buf, MAX_STEAM_PACKET_SIZE, &msgSize, &steamIDRemote);
+                continue;
+            }
+
+            if (!SteamNetworking()->ReadP2PPacket(recv_buf, msgSize, &msgSize, &steamIDRemote))
+            {
+                Log("Failed to read packet\n");
+                continue;
+            }
+        }
+    };
+
+    struct SocketConnection : public GGPOConnection {
     protected:
         ggpo::uint16 _port;
         SOCKET       _socket;
@@ -158,7 +225,64 @@ extern "C" {
         void Init() {
             _socket = CreateSocket(_port, 0);
         }
-    } SocketConnection;
+
+        void Constructor() {
+            //_socket = SOCKET(INVALID_SOCKET);
+        }
+
+        void Destructor() {
+            if (_socket != INVALID_SOCKET) {
+                closesocket(_socket);
+                _socket = INVALID_SOCKET;
+            }
+        }
+
+        void SendTo(const char* buffer, int len, int flags, int player_num) {
+            struct sockaddr_in* to = (struct sockaddr_in*)dst;
+
+            int res = sendto(_socket, buffer, len, flags, dst, destlen);
+            if (res == SOCKET_ERROR) {
+                DWORD err = WSAGetLastError();
+                Log("unknown error in sendto (erro: %d  wsaerr: %d).\n", res, err);
+                ASSERT(FALSE && "Unknown error in sendto");
+            }
+            char dst_ip[1024];
+            Log("sent packet length %d to %s:%d (ret:%d).\n", len, inet_ntop(AF_INET, (void*)&to->sin_addr, dst_ip, ARRAY_SIZE(dst_ip)), ntohs(to->sin_port), res);
+        }
+
+        void ReceiveFrom(void* self, char* buffer, int len, int flags, int* player_num) {
+
+        }
+
+        SOCKET
+        CreateSocket(ggpo::uint16 bind_port, int retries)
+        {
+            SOCKET s;
+            sockaddr_in sin;
+            ggpo::uint16 port;
+            int optval = 1;
+
+            s = socket(AF_INET, SOCK_DGRAM, 0);
+            setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (const char*)&optval, sizeof optval);
+            setsockopt(s, SOL_SOCKET, SO_DONTLINGER, (const char*)&optval, sizeof optval);
+
+            // non-blocking...
+            u_long iMode = 1;
+            ioctlsocket(s, FIONBIO, &iMode);
+
+            sin.sin_family = AF_INET;
+            sin.sin_addr.s_addr = htonl(INADDR_ANY);
+            for (port = bind_port; port <= bind_port + retries; port++) {
+                sin.sin_port = htons(port);
+                if (bind(s, (sockaddr*)&sin, sizeof sin) != SOCKET_ERROR) {
+                    Log("Udp bound to port: %d.\n", port);
+                    return s;
+                }
+            }
+            closesocket(s);
+            return INVALID_SOCKET;
+        }
+    };
 
     /*
      * The GGPOEventCode enumeration describes what type of event just happened.

@@ -10,10 +10,12 @@
 
 Connection::Connection()
 {
+    _ggpo_connection->Constructor();
 }
 
 Connection::~Connection(void)
 {
+    _ggpo_connection->Destructor();
 }
 
 void
@@ -31,17 +33,17 @@ Connection::Init(Poll* poll, Callbacks* callbacks, GGPOConnection* ggpo_connecti
 void
 Connection::SendTo(char* buffer, int len, int flags, int player_num)
 {
-    _ggpo_connection->send_to(_ggpo_connection->instance, buffer, len, flags, player_num);
+    _ggpo_connection->SendTo(buffer, len, flags, player_num);
 }
 
 bool
 Connection::OnLoopPoll(void* cookie)
 {
-    uint8          recv_buf[MAX_CONNECTION_PACKET_SIZE];
+    uint8 recv_buf[MAX_CONNECTION_PACKET_SIZE];
 
     for (;;) {
         int player_id = -1;
-        int len = _ggpo_connection->receive_from(_ggpo_connection->instance, (char*)recv_buf, MAX_CONNECTION_PACKET_SIZE, 0, &player_id);
+        int len = _ggpo_connection->ReceiveFrom((char*)recv_buf, MAX_CONNECTION_PACKET_SIZE, 0, &player_id);
 
         // TODO: handle len == 0... indicates a disconnect.
 
