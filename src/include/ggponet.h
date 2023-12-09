@@ -128,19 +128,19 @@ extern "C" {
         */
         Connection instance;
 
-        void Init();
-        void Constructor();
-        void Destructor();
+        virtual void Init() = 0;
+        virtual void Constructor() = 0;
+        virtual void Destructor() = 0;
         /*
           *send buffer to the opponent.
         */
-        void SendTo(const char* buffer, int len, int flags, int player_num);
+        virtual void SendTo(const char* buffer, int len, int flags, int player_num) = 0;
         /*
         * poll connection socket, put the sending players id to the player_num container and return the length of packet
         */
-        int ReceiveFrom(char* buffer, int len, int flags, int* player_num);
+        virtual int ReceiveFrom(char* buffer, int len, int flags, int* player_num) = 0;
 
-        bool OnLoopPoll(void* cookie);
+        virtual bool OnLoopPoll(void* cookie) = 0;
     };
 
     struct SteamConnection : public GGPOConnection {
