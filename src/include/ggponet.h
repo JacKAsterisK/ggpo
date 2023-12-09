@@ -8,6 +8,11 @@
 #ifndef _GGPONET_H_
 #define _GGPONET_H_
 
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#include <steam/steam_api.h>
+#pragma warning(pop)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -80,8 +85,12 @@ typedef struct GGPOPlayer {
       struct {
          char           ip_address[32];
          unsigned short port;
+         uint64       steam_id;
       } remote;
    } u;
+
+    CSteamID GetSteamID() const { return CSteamID(u.remote.steam_id); }
+    void SetSteamID(CSteamID steam_id) { u.remote.steam_id = steam_id.ConvertToUint64(); }
 } GGPOPlayer;
 
 typedef struct GGPOLocalEndpoint {
