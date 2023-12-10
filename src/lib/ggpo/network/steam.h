@@ -16,6 +16,7 @@
 #include "ring_buffer.h"
 
 #define MAX_STEAM_ENDPOINTS     16
+#define MAX_STEAM_MESSAGES      32
 
 static const int MAX_STEAM_PACKET_SIZE = 4096;
 

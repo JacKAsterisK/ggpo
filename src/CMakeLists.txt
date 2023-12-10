@@ -6,7 +6,10 @@ add_library(GGPO
 
 add_common_flags(GGPO)
 
-set(STEAMWORKS_PATH "${CMAKE_SOURCE_DIR}/external/steamworks/sdk" CACHE STRING "Path to Steamworks SDK" FORCE)
+# Check if STEAMWORKS_PATH is not already set
+if(NOT DEFINED STEAMWORKS_PATH)
+    set(STEAMWORKS_PATH "${CMAKE_SOURCE_DIR}/external/steamworks/sdk" CACHE STRING "Path to Steamworks SDK")
+endif()
 
 target_include_directories(GGPO PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
