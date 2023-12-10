@@ -49,7 +49,7 @@ public:
 
    void Init(Poll *p, Callbacks *callbacks);
    
-   void SendTo(char *buffer, int len, EP2PSend flags, CSteamID &dst);
+   void SendTo(char *buffer, int len, int flags, CSteamID &dst);
 
    virtual bool OnLoopPoll(void *cookie);
 
