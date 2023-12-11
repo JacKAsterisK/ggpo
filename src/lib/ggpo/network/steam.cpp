@@ -105,6 +105,7 @@ GGPOSteam::OnLoopPoll(void *cookie)
             if (msg->m_cbSize > MAX_STEAM_PACKET_SIZE)
             {
                 Log("Dropping oversized packet\n");
+                msg->Release();
                 continue;
             }
 
@@ -112,10 +113,13 @@ GGPOSteam::OnLoopPoll(void *cookie)
 
             if (steamIDRemote == _local_steam_id)
             {
+                msg->Release();
                 continue;
             }
 
             _callbacks->OnMsg(steamIDRemote, (SteamMsg *)msg->m_pData, msg->m_cbSize);
+
+            msg->Release();
         }
     }
 
