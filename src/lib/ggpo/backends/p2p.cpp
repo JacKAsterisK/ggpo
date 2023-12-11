@@ -740,9 +740,10 @@ Peer2PeerBackend::SetDisconnectNotifyStart(int timeout)
    return GGPO_OK;
 }
 
-GGPOErrorCode Peer2PeerBackend::SetSteamLegacyAPI(bool legacy)
+GGPOErrorCode
+Peer2PeerBackend::SetSteamLegacyMessages(bool legacy)
 {
-    _steam.SetLegacyAPI(legacy);
+    _steam.SetLegacyMessages(legacy);
 
     return GGPO_OK;
 }

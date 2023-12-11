@@ -48,7 +48,7 @@ public:
 
    CSteamID GetLocalSteamID() { return _local_steam_id; }
 
-    void SetLegacyAPI(bool legacy) { _legacy_steam_api = legacy; }
+    void SetLegacyMessages(bool legacy) { _legacy_steam_api = legacy; }
     int GetDefaultMessageFlags() { return _legacy_steam_api ? k_EP2PSendUnreliable : k_EP2PSendUnreliableNoDelay; }
 
     void Init(Poll *p, Callbacks *callbacks);
