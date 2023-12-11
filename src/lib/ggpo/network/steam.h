@@ -36,6 +36,7 @@ public:
 
 protected:
 	CSteamID _local_steam_id;
+    bool _legacy_steam_api;
 
 	// state management
 	Callbacks* _callbacks;
@@ -47,11 +48,14 @@ public:
 
    CSteamID GetLocalSteamID() { return _local_steam_id; }
 
-   void Init(Poll *p, Callbacks *callbacks);
-   
-   void SendTo(char *buffer, int len, int flags, CSteamID &dst);
+    void SetLegacyAPI(bool legacy) { _legacy_steam_api = legacy; }
+    int GetDefaultMessageFlags() { return _legacy_steam_api ? k_EP2PSendUnreliable : k_EP2PSendUnreliableNoDelay; }
 
-   virtual bool OnLoopPoll(void *cookie);
+    void Init(Poll *p, Callbacks *callbacks);
+
+    void SendTo(char *buffer, int len, int flags, CSteamID &dst);
+
+    virtual bool OnLoopPoll(void *cookie);
 
 protected:
 	void Log(const char* fmt, ...);

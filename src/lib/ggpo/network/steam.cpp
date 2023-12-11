@@ -11,7 +11,8 @@
 #include "steam.h"
 
 GGPOSteam::GGPOSteam() :
-   _callbacks(NULL)
+   _callbacks(NULL),
+   _legacy_steam_api(false)
 {
     _local_steam_id.Clear();
 }
@@ -27,7 +28,12 @@ GGPOSteam::Init(Poll *poll, Callbacks *callbacks)
    _callbacks = callbacks;
 
     SteamAPI_Init();
-    SteamNetworking()->AllowP2PPacketRelay(true);
+
+    if (_legacy_steam_api)
+    {
+        SteamNetworking()->AllowP2PPacketRelay(true);
+    }
+
    _local_steam_id = SteamUser()->GetSteamID();
 
    _poll = poll;
@@ -40,7 +46,14 @@ GGPOSteam::SendTo(char *buffer, int len, int flags, CSteamID &dst)
     SteamNetworkingIdentity recipient;
     recipient.SetSteamID(dst);
 
-    SteamNetworkingMessages()->SendMessageToUser(recipient, buffer, len, flags, 0);
+    if (_legacy_steam_api)
+    {
+        SteamNetworking()->SendP2PPacket(dst, buffer, len, (EP2PSend)flags);
+    }
+    else
+    {
+        SteamNetworkingMessages()->SendMessageToUser(recipient, buffer, len, flags, 0);
+    }
 }
 
 bool
@@ -48,31 +61,62 @@ GGPOSteam::OnLoopPoll(void *cookie)
 {
     SteamAPI_RunCallbacks();
 
-    SteamNetworkingMessage_t* inMessages[MAX_STEAM_MESSAGES];
-    int numMsgs = SteamNetworkingMessages()->ReceiveMessagesOnChannel(0, inMessages, MAX_STEAM_MESSAGES);
-    if (numMsgs == 0)
+    if (_legacy_steam_api)
     {
-        return true;
+        ggpo::uint8 recv_buf[MAX_STEAM_PACKET_SIZE];
+        uint32 msgSize;
+        CSteamID steamIDRemote;
+        while (SteamNetworking()->IsP2PPacketAvailable(&msgSize))
+        {
+            if (msgSize > MAX_STEAM_PACKET_SIZE)
+            {
+                Log("Dropping oversized packet\n");
+                SteamNetworking()->ReadP2PPacket(recv_buf, MAX_STEAM_PACKET_SIZE, &msgSize, &steamIDRemote);
+                continue;
+            }
+
+            if (!SteamNetworking()->ReadP2PPacket(recv_buf, msgSize, &msgSize, &steamIDRemote))
+            {
+                Log("Failed to read packet\n");
+                continue;
+            }
+
+            if (steamIDRemote == _local_steam_id)
+            {
+                continue;
+            }
+
+            _callbacks->OnMsg(steamIDRemote, (SteamMsg *)recv_buf, msgSize);
+        }
     }
-
-    for (int i = 0; i < numMsgs; i++)
+    else
     {
-        SteamNetworkingMessage_t* msg = inMessages[i];
-
-        if (msg->m_cbSize > MAX_STEAM_PACKET_SIZE)
+        SteamNetworkingMessage_t* inMessages[MAX_STEAM_MESSAGES];
+        int numMsgs = SteamNetworkingMessages()->ReceiveMessagesOnChannel(0, inMessages, MAX_STEAM_MESSAGES);
+        if (numMsgs == 0)
         {
-            Log("Dropping oversized packet\n");
-            continue;
+            return true;
         }
 
-        CSteamID steamIDRemote = msg->m_identityPeer.GetSteamID();
-
-        if (steamIDRemote == _local_steam_id)
+        for (int i = 0; i < numMsgs; i++)
         {
-            continue;
-        }
+            SteamNetworkingMessage_t* msg = inMessages[i];
 
-        _callbacks->OnMsg(steamIDRemote, (SteamMsg *)msg->m_pData, msg->m_cbSize);
+            if (msg->m_cbSize > MAX_STEAM_PACKET_SIZE)
+            {
+                Log("Dropping oversized packet\n");
+                continue;
+            }
+
+            CSteamID steamIDRemote = msg->m_identityPeer.GetSteamID();
+
+            if (steamIDRemote == _local_steam_id)
+            {
+                continue;
+            }
+
+            _callbacks->OnMsg(steamIDRemote, (SteamMsg *)msg->m_pData, msg->m_cbSize);
+        }
     }
 
     return true;

@@ -187,6 +187,13 @@ ggpo_set_disconnect_notify_start(GGPOSession *ggpo, int timeout)
    return ggpo->SetDisconnectNotifyStart(timeout);
 }
 
+GGPO_API GGPOErrorCode __cdecl ggpo_set_steam_legacy_messages(GGPOSession *ggpo, bool legacy)
+{
+    ggpo->SetSteamLegacyMessages(legacy);
+
+    return GGPO_OK;
+}
+
 GGPOErrorCode ggpo_start_spectating(GGPOSession **session,
                                     GGPOSessionCallbacks *cb,
                                     const char *game,

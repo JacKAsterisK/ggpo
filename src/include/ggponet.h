@@ -550,6 +550,14 @@ GGPO_API GGPOErrorCode __cdecl ggpo_set_disconnect_notify_start(GGPOSession *,
                                                                 int timeout);
 
 /*
+ * ggpo_set_steam_legacy_messages --
+ *
+ * Set to true to use the legacy Steam messages.
+ */
+GGPO_API GGPOErrorCode __cdecl ggpo_set_steam_legacy_messages(GGPOSession *,
+                                                              bool legacy);
+
+/*
  * ggpo_log --
  *
  * Used to write to the ggpo.net log.  In the current versions of the

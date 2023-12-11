@@ -725,7 +725,7 @@ SteamProtocol::PumpSendQueue()
         } else {
             ASSERT(entry.steam_id.IsValid());
 
-            _steam->SendTo((char *)entry.msg, entry.msg->PacketSize(), k_nSteamNetworkingSend_NoDelay, entry.steam_id);
+            _steam->SendTo((char *)entry.msg, entry.msg->PacketSize(), _steam->GetDefaultMessageFlags(), entry.steam_id);
 
             delete entry.msg;
         }
@@ -734,7 +734,7 @@ SteamProtocol::PumpSendQueue()
     if (_oo_packet.msg && _oo_packet.send_time < Platform::GetCurrentTimeMS()) {
         Log("sending rogue oop!");
 
-        _steam->SendTo((char *)_oo_packet.msg, _oo_packet.msg->PacketSize(), k_nSteamNetworkingSend_NoDelay, _oo_packet.steam_id);
+        _steam->SendTo((char *)_oo_packet.msg, _oo_packet.msg->PacketSize(), _steam->GetDefaultMessageFlags(), _oo_packet.steam_id);
 
         delete _oo_packet.msg;
         _oo_packet.msg = NULL;
