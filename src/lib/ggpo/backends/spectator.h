@@ -24,17 +24,18 @@ public:
 
 
 public:
-   virtual GGPOErrorCode DoPoll(int timeout);
-   virtual GGPOErrorCode AddPlayer(GGPOPlayer *player, GGPOPlayerHandle *handle) { return GGPO_ERRORCODE_UNSUPPORTED; }
-   virtual GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, void *values, int size) { return GGPO_OK; }
-   virtual GGPOErrorCode SyncInput(void *values, int size, int *disconnect_flags);
-   virtual GGPOErrorCode IncrementFrame(void);
-   virtual GGPOErrorCode DisconnectPlayer(GGPOPlayerHandle handle) { return GGPO_ERRORCODE_UNSUPPORTED; }
-   virtual GGPOErrorCode GetNetworkStats(GGPONetworkStats *stats, GGPOPlayerHandle handle) { return GGPO_ERRORCODE_UNSUPPORTED; }
-   virtual GGPOErrorCode SetFrameDelay(GGPOPlayerHandle player, int delay) { return GGPO_ERRORCODE_UNSUPPORTED; }
-   virtual GGPOErrorCode SetDisconnectTimeout(int timeout) { return GGPO_ERRORCODE_UNSUPPORTED; }
-   virtual GGPOErrorCode SetDisconnectNotifyStart(int timeout) { return GGPO_ERRORCODE_UNSUPPORTED; }
-   virtual GGPOErrorCode SetSteamLegacyAPI(bool legacy) { return GGPO_ERRORCODE_UNSUPPORTED; }
+	virtual int GetCurrentFrame() override;
+	virtual GGPOErrorCode DoPoll(int timeout);
+	virtual GGPOErrorCode AddPlayer(GGPOPlayer* player, GGPOPlayerHandle* handle) { return GGPO_ERRORCODE_UNSUPPORTED; }
+	virtual GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, void* values, int size) { return GGPO_OK; }
+	virtual GGPOErrorCode SyncInput(void* values, int size, int* disconnect_flags);
+	virtual GGPOErrorCode IncrementFrame(void);
+	virtual GGPOErrorCode DisconnectPlayer(GGPOPlayerHandle handle) { return GGPO_ERRORCODE_UNSUPPORTED; }
+	virtual GGPOErrorCode GetNetworkStats(GGPONetworkStats* stats, GGPOPlayerHandle handle) { return GGPO_ERRORCODE_UNSUPPORTED; }
+	virtual GGPOErrorCode SetFrameDelay(GGPOPlayerHandle player, int delay) { return GGPO_ERRORCODE_UNSUPPORTED; }
+	virtual GGPOErrorCode SetDisconnectTimeout(int timeout) { return GGPO_ERRORCODE_UNSUPPORTED; }
+	virtual GGPOErrorCode SetDisconnectNotifyStart(int timeout) { return GGPO_ERRORCODE_UNSUPPORTED; }
+	virtual GGPOErrorCode SetSteamLegacyAPI(bool legacy) { return GGPO_ERRORCODE_UNSUPPORTED; }
 
 public:
    virtual void OnMsg(sockaddr_in &from, UdpMsg *msg, int len);

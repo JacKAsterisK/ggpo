@@ -67,6 +67,11 @@ Peer2PeerBackend::~Peer2PeerBackend()
    delete [] _steam_endpoints;
 }
 
+int Peer2PeerBackend::GetCurrentFrame()
+{
+   return _sync.GetFrameCount();
+}
+
 // void
 // Peer2PeerBackend::AddRemotePlayer(char *ip,
 //                                   ggpo::uint16 port,

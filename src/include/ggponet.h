@@ -558,6 +558,13 @@ GGPO_API GGPOErrorCode __cdecl ggpo_set_steam_legacy_messages(GGPOSession *,
                                                               bool legacy);
 
 /*
+* ggpo_get_current_frame --
+*
+* Gets the current frame from the session.
+*/
+GGPO_API int __cdecl ggpo_get_current_frame(GGPOSession*);
+
+/*
  * ggpo_log --
  *
  * Used to write to the ggpo.net log.  In the current versions of the

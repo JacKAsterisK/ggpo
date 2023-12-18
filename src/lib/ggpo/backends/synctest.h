@@ -18,6 +18,7 @@ public:
    SyncTestBackend(GGPOSessionCallbacks *cb, char *gamename, int frames, int num_players);
    virtual ~SyncTestBackend();
 
+   virtual int GetCurrentFrame() override;
    virtual GGPOErrorCode DoPoll(int timeout);
    virtual GGPOErrorCode AddPlayer(GGPOPlayer *player, GGPOPlayerHandle *handle);
    virtual GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, void *values, int size);

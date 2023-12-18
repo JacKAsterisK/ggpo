@@ -46,6 +46,11 @@ SpectatorBackend::~SpectatorBackend()
 {
 }
 
+int SpectatorBackend::GetCurrentFrame()
+{
+   return _next_input_to_send - 1;
+}
+
 GGPOErrorCode
 SpectatorBackend::DoPoll(int timeout)
 {

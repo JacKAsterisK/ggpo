@@ -41,6 +41,11 @@ SyncTestBackend::~SyncTestBackend()
 {
 }
 
+int SyncTestBackend::GetCurrentFrame()
+{
+   return _sync.GetFrameCount();
+}
+
 GGPOErrorCode
 SyncTestBackend::DoPoll(int timeout)
 {

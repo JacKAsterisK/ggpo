@@ -194,6 +194,11 @@ GGPO_API GGPOErrorCode __cdecl ggpo_set_steam_legacy_messages(GGPOSession *ggpo,
     return GGPO_OK;
 }
 
+GGPO_API int __cdecl ggpo_get_current_frame(GGPOSession* ggpo)
+{
+	return ggpo->GetCurrentFrame();
+}
+
 GGPOErrorCode ggpo_start_spectating(GGPOSession **session,
                                     GGPOSessionCallbacks *cb,
                                     const char *game,

@@ -23,17 +23,18 @@ public:
 
 
 public:
-   virtual GGPOErrorCode DoPoll(int timeout);
-   virtual GGPOErrorCode AddPlayer(GGPOPlayer *player, GGPOPlayerHandle *handle);
-   virtual GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, void *values, int size);
-   virtual GGPOErrorCode SyncInput(void *values, int size, int *disconnect_flags);
-   virtual GGPOErrorCode IncrementFrame(void);
-   virtual GGPOErrorCode DisconnectPlayer(GGPOPlayerHandle handle);
-   virtual GGPOErrorCode GetNetworkStats(GGPONetworkStats *stats, GGPOPlayerHandle handle);
-   virtual GGPOErrorCode SetFrameDelay(GGPOPlayerHandle player, int delay);
-   virtual GGPOErrorCode SetDisconnectTimeout(int timeout);
-   virtual GGPOErrorCode SetDisconnectNotifyStart(int timeout);
-   virtual GGPOErrorCode SetSteamLegacyMessages(bool legacy) override;
+	virtual int GetCurrentFrame() override;
+	virtual GGPOErrorCode DoPoll(int timeout);
+	virtual GGPOErrorCode AddPlayer(GGPOPlayer* player, GGPOPlayerHandle* handle);
+	virtual GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, void* values, int size);
+	virtual GGPOErrorCode SyncInput(void* values, int size, int* disconnect_flags);
+	virtual GGPOErrorCode IncrementFrame(void);
+	virtual GGPOErrorCode DisconnectPlayer(GGPOPlayerHandle handle);
+	virtual GGPOErrorCode GetNetworkStats(GGPONetworkStats* stats, GGPOPlayerHandle handle);
+	virtual GGPOErrorCode SetFrameDelay(GGPOPlayerHandle player, int delay);
+	virtual GGPOErrorCode SetDisconnectTimeout(int timeout);
+	virtual GGPOErrorCode SetDisconnectNotifyStart(int timeout);
+	virtual GGPOErrorCode SetSteamLegacyMessages(bool legacy) override;
 
 public:
    //virtual void OnMsg(sockaddr_in &from, UdpMsg *msg, int len);
