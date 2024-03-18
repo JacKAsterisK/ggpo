@@ -6,13 +6,17 @@ add_library(GGPO
 
 add_common_flags(GGPO)
 
-set(STEAMWORKS_PATH "${CMAKE_SOURCE_DIR}/external/steamworks/sdk" CACHE STRING "Path to Steamworks SDK" FORCE)
+if(NOT STEAMWORKS_PATH)
+  set(STEAMWORKS_PATH "${CMAKE_SOURCE_DIR}/external/steamworks/sdk" CACHE STRING "Path to Steamworks SDK" FORCE)
+endif()
 
 target_include_directories(GGPO PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/ggpo>
     ${STEAMWORKS_PATH}/public
 )
+
+message(STATUS "STEAMWORKS_PATH is set to ${STEAMWORKS_PATH}")
 
 if(WIN32)
     target_compile_options(GGPO PRIVATE "/W4" "/WX")
