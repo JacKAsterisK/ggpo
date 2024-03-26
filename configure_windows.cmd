@@ -6,14 +6,6 @@ echo GGPO Visual Studio Solution Generator
 set GGPO_SHARED_LIB=off
 set STEAMWORKS_PATH=
 set NO_PROMPT=
-:check_file
-IF EXIST steamworks_path.txt (
-    FOR /F "tokens=*" %%G IN (steamworks_path.txt) DO SET STEAMWORKS_PATH=%%G
-) ELSE (
-    echo File steamworks_path.txt not found.
-    goto end
-)
-
 
 :parse_args
 IF "%~1"=="" GOTO :start
