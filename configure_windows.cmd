@@ -1,6 +1,8 @@
 @echo off
 setlocal
 
+echo GGPO Visual Studio Solution Generator
+
 set GGPO_SHARED_LIB=off
 set STEAMWORKS_PATH=
 set NO_PROMPT=
@@ -9,6 +11,8 @@ set NO_PROMPT=
 IF "%~1"=="" GOTO :start
 IF "%1"=="--no-prompt" SET NO_PROMPT=1 & SHIFT & GOTO :parse_args
 SET STEAMWORKS_PATH=%1
+REM Replace | with space
+SET STEAMWORKS_PATH=%STEAMWORKS_PATH:|= %
 SHIFT
 GOTO :parse_args
 
@@ -21,7 +25,7 @@ echo Generating GGPO Visual Studio solution files.
 echo    GGPO_SHARED_LIB=%GGPO_SHARED_LIB%
 echo    Steamworks Path: %STEAMWORKS_PATH%
 
-cmake -G "Visual Studio 16 2019" -A x64 -B build -DBUILD_SHARED_LIBS=%GGPO_SHARED_LIB% -DSTEAMWORKS_PATH="%STEAMWORKS_PATH%"
+cmake -G "Visual Studio 17 2022" -A x64 -B build -DBUILD_SHARED_LIBS=%GGPO_SHARED_LIB% -DSTEAMWORKS_PATH="%STEAMWORKS_PATH%"
 
 echo Finished!  Open build/GGPO.sln in Visual Studio to build.
 
